@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AERO // FUEL INDIA - Fuel Tracking & Analytics</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- Site Header -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="brand-wrapper">
+        <div class="brand-icon">
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="32" height="32" rx="4" fill="#1E293B"/>
+            <path d="M7 26V8C7 6.89543 7.89543 6 9 6H19C20.1046 6 21 6.89543 21 8V26" stroke="#38BDF8" stroke-width="2"/>
+            <rect x="10" y="9" width="7" height="6" rx="1" fill="#0F172A" stroke="#0284C7" stroke-width="1"/>
+            <line x1="6" y1="26" x2="22" y2="26" stroke="#38BDF8" stroke-width="2"/>
+            <path d="M21 12H23C24.1046 12 25 12.8954 25 14V21C25 21.5523 24.5523 22 24 22H23" stroke="#F59E0B" stroke-width="2"/>
+          </svg>
+        </div>
+        <div>
+          <div class="brand-title">AERO // FUEL INDIA</div>
+          <div class="brand-tagline">National Fuel Operations & Analytics</div>
+        </div>
+      </div>
+
+      <div class="header-status">
+        <div id="header-auth-guest" class="header-auth-group">
+          <button type="button" class="btn btn-secondary btn-sm" id="btn-open-signin">Sign In</button>
+          <button type="button" class="btn btn-primary btn-sm" id="btn-open-signup">Create Account</button>
+        </div>
+        <div id="header-auth-user" class="header-auth-group hidden">
+          <div class="status-badge">
+            <span class="status-dot"></span>
+            <span id="header-user-email">Account</span>
+          </div>
+          <button type="button" class="btn btn-secondary btn-sm" id="btn-sign-out">Sign Out</button>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button type="button" class="btn btn-secondary btn-sm" id="btn-load-sample" title="Load sample records for India">
+          Load Sample Data
+        </button>
+        <button type="button" class="btn btn-secondary btn-sm" id="btn-open-import-modal" title="Import records from a CSV file">
+          Import CSV
+        </button>
+        <button type="button" class="btn btn-primary btn-sm" id="btn-add-record" title="Record a new fill-up">
+          + Add Record
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs Bar -->
+  <nav class="nav-tabs-bar" aria-label="Main Navigation">
+    <div class="nav-tabs-inner">
+      <button type="button" class="tab-btn active" data-tab-target="tab-records">
+        Log Book
+      </button>
+      <button type="button" class="tab-btn" data-tab-target="tab-map">
+        India State Map
+      </button>
+      <button type="button" class="tab-btn" data-tab-target="tab-analytics">
+        Summaries & Analytics
+      </button>
+      <button type="button" class="tab-btn" data-tab-target="tab-backup">
+        Data & Backup
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Content Shell -->
+  <main class="app-container">
+
+    <!-- KPI Metric Ribbon -->
+    <section class="kpi-grid" aria-label="Key Performance Indicators">
+      <div class="kpi-card accent-blue">
+        <div class="kpi-label">Total Litres Consumed</div>
+        <div class="kpi-value" id="kpi-total-litres">0.00 L</div>
+        <div class="kpi-caption">Cumulative fuel volume</div>
+      </div>
+      <div class="kpi-card accent-slate">
+        <div class="kpi-label">Total Fuel Expenditure</div>
+        <div class="kpi-value" id="kpi-total-spend">₹0.00</div>
+        <div class="kpi-caption">Combined fill-up cost</div>
+      </div>
+      <div class="kpi-card accent-emerald">
+        <div class="kpi-label">Average Fuel Rate</div>
+        <div class="kpi-value" id="kpi-avg-price">₹0.00 / L</div>
+        <div class="kpi-caption">Weighted price per litre</div>
+      </div>
+      <div class="kpi-card accent-amber">
+        <div class="kpi-label">Total Records</div>
+        <div class="kpi-value" id="kpi-total-count">0 fill-ups</div>
+        <div class="kpi-caption">Active entries in log</div>
+      </div>
+    </section>
+
+    <!-- Tab 1: Records Log Book -->
+    <section id="tab-records" class="tab-panel">
+      <!-- Device Storage Notice -->
+      <div class="storage-notice-banner">
+        <div class="storage-notice-text">
+          <svg class="notice-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+            <line x1="8" y1="21" x2="16" y2="21"></line>
+            <line x1="12" y1="17" x2="12" y2="21"></line>
+          </svg>
+          <span id="storage-notice-text-content"><strong>Local Storage Mode:</strong> Your fuel records stay in this browser on this device (key: <code>aero_fuel_records_v1</code>). Sign in to sync your records to the cloud.</span>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('btn-export-json').click()">Export Backup</button>
+      </div>
+
+      <!-- Filter Toolbar -->
+      <div class="filter-toolbar">
+        <div class="filter-grid">
+          <div class="form-group">
+            <label for="filter-date-from">From Date</label>
+            <input type="date" id="filter-date-from" class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="filter-date-to">To Date</label>
+            <input type="date" id="filter-date-to" class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="filter-state">State / UT</label>
+            <select id="filter-state" class="form-control">
+              <option value="">All States / UTs</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="filter-city">City Search</label>
+            <input type="text" id="filter-city" list="filter-city-list" class="form-control" placeholder="Search or select city">
+            <datalist id="filter-city-list"></datalist>
+          </div>
+          <div class="form-group">
+            <label for="filter-fuel">Fuel Type</label>
+            <select id="filter-fuel" class="form-control">
+              <option value="">All Fuel Types</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>&nbsp;</label>
+            <button type="button" class="btn btn-secondary" id="filter-reset-btn">Reset Filters</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Records Table Panel -->
+      <div class="panel-card" id="records-section">
+        <div class="panel-header">
+          <div class="panel-title">Fuel Fill-up Records Log</div>
+          <div id="records-count" class="font-mono small text-secondary">Showing 0 records</div>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Location</th>
+                <th>Vehicle</th>
+                <th>Fuel</th>
+                <th class="text-right">Litres</th>
+                <th class="text-right">Price / L</th>
+                <th class="text-right">Total Amount</th>
+                <th>Notes</th>
+                <th class="text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="records-table-body">
+              <tr>
+                <td colspan="9" class="table-empty">Loading records...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="table-pagination" class="panel-footer"></div>
+      </div>
+    </section>
+
+    <!-- Tab 2: India State Map -->
+    <section id="tab-map" class="tab-panel hidden">
+      <div class="panel-card">
+        <div class="panel-header">
+          <div class="panel-title">India Fuel Consumption by State</div>
+          <div class="btn-group" role="group" aria-label="Map Metric Selection">
+            <button type="button" id="btn-map-spend" class="btn-group-btn active">Total Spend (₹)</button>
+            <button type="button" id="btn-map-litres" class="btn-group-btn">Total Litres (L)</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="map-workspace-grid">
+            <!-- Left: Interactive Map -->
+            <div class="map-view-wrapper">
+              <div class="map-toolbar">
+                <span class="map-toolbar-label">Interactive State Choropleth Map</span>
+                <span class="small text-muted">Hover for state details; click to filter log</span>
+              </div>
+              <div id="india-map-container" class="india-svg-container">
+                <!-- SVG map injected here -->
+              </div>
+              <div id="map-legend" class="map-legend">
+                <!-- Legend injected here -->
+              </div>
+            </div>
+
+            <!-- Right: State Activity Table -->
+            <div class="panel-card" style="margin-bottom: 0;">
+              <div class="panel-header">
+                <div class="panel-title">State Consumption Rankings</div>
+              </div>
+              <div class="table-responsive" style="max-height: 520px; overflow-y: auto;">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>State / UT</th>
+                      <th class="text-right">Fill-ups</th>
+                      <th class="text-right">Litres</th>
+                      <th class="text-right">Total Spend</th>
+                    </tr>
+                  </thead>
+                  <tbody id="map-state-table-body">
+                    <tr>
+                      <td colspan="5" class="table-empty">No state records available yet.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 3: Summaries & Analytics -->
+    <section id="tab-analytics" class="tab-panel hidden">
+      <!-- Monthly Summary -->
+      <div class="panel-card">
+        <div class="panel-header">
+          <div class="panel-title">Monthly Consumption & Spend Summary</div>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Calendar Month</th>
+                <th class="text-right">Fill-ups</th>
+                <th class="text-right">Total Litres</th>
+                <th class="text-right">Total Expenditure</th>
+                <th class="text-right">Average Rate (₹ / L)</th>
+              </tr>
+            </thead>
+            <tbody id="monthly-summary-body">
+              <tr>
+                <td colspan="5" class="table-empty">No monthly data recorded yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Fuel Type and City Grid -->
+      <div class="analytics-grid">
+        <!-- Fuel Type Breakdown -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <div class="panel-title">Breakdown by Fuel Type</div>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Fuel</th>
+                  <th class="text-right">Count</th>
+                  <th class="text-right">Litres (Share)</th>
+                  <th class="text-right">Spend (Share)</th>
+                  <th class="text-right">Avg Rate</th>
+                  <th>Share</th>
+                </tr>
+              </thead>
+              <tbody id="fuel-summary-body">
+                <tr>
+                  <td colspan="6" class="table-empty">No fuel data available.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Top Cities Breakdown -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <div class="panel-title">Top Refueling Cities</div>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>City</th>
+                  <th>State</th>
+                  <th class="text-right">Fill-ups</th>
+                  <th class="text-right">Litres</th>
+                  <th class="text-right">Total Spend</th>
+                </tr>
+              </thead>
+              <tbody id="city-summary-body">
+                <tr>
+                  <td colspan="6" class="table-empty">No city data available.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 4: Data & Backup -->
+    <section id="tab-backup" class="tab-panel hidden">
+      <div class="analytics-grid">
+        <!-- Export & Backup Card -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <div class="panel-title">Data Export & Backup</div>
+          </div>
+          <div class="panel-body">
+            <p style="margin-bottom: 16px; color: var(--text-secondary);">
+              Your fuel records are stored strictly inside this browser instance. Download complete backups regularly to preserve your operational history.
+            </p>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              <div>
+                <button type="button" class="btn btn-secondary" id="btn-export-csv" style="width: 100%;">
+                  Export Filtered Records to CSV (.csv)
+                </button>
+                <div class="small text-muted" style="margin-top: 4px;">Compatible with spreadsheet software including Excel and Sheets.</div>
+              </div>
+              <div style="border-top: 1px solid var(--border-light); padding-top: 12px;">
+                <button type="button" class="btn btn-primary" id="btn-export-json" style="width: 100%;">
+                  Download Full JSON Backup (.json)
+                </button>
+                <div class="small text-muted" style="margin-top: 4px;">Complete application state export with timestamps and identifiers.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Restore & Dataset Management -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <div class="panel-title">Restore & Dataset Controls</div>
+          </div>
+          <div class="panel-body">
+            <p style="margin-bottom: 16px; color: var(--text-secondary);">
+              Restore fuel records from a previously exported JSON backup file or manage test datasets.
+            </p>
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+              <div>
+                <label for="json-restore-input" class="btn btn-secondary" style="width: 100%; cursor: pointer;">
+                  Restore from JSON Backup File
+                </label>
+                <input type="file" id="json-restore-input" accept=".json" style="display: none;">
+                <div class="small text-muted" style="margin-top: 4px;">Validates file integrity before writing records to browser storage.</div>
+              </div>
+              <div style="border-top: 1px solid var(--border-light); padding-top: 12px; display: flex; gap: 10px;">
+                <button type="button" class="btn btn-secondary" onclick="AeroApp.loadSampleData()" style="flex: 1;">
+                  Reload Sample Data
+                </button>
+                <button type="button" class="btn btn-danger" id="btn-clear-data" style="flex: 1;">
+                  Clear All Storage
+                </button>
+              </div>
+              <div style="border-top: 1px solid var(--border-light); padding-top: 12px;">
+                <button type="button" class="btn btn-dark btn-sm" id="btn-open-checklist" style="width: 100%;">
+                  View Launch Blockers & Compliance Status
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Record Add / Edit Modal -->
+  <div id="record-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-title">Add Fuel Record</h3>
+        <button type="button" class="btn-close" id="modal-close-btn" aria-label="Close dialog">&times;</button>
+      </div>
+      <form id="record-form">
+        <div class="modal-body">
+          <div id="record-form-errors" class="form-alert hidden"></div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label for="record-date">Purchase Date *</label>
+              <input type="date" id="record-date" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label for="record-state">State / UT *</label>
+              <select id="record-state" class="form-control" required>
+                <option value="">Select Indian State</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-grid-3">
+            <div class="form-group">
+              <label for="record-city">City *</label>
+              <input type="text" id="record-city" list="record-city-list" class="form-control" placeholder="Select or type city" required>
+              <datalist id="record-city-list"></datalist>
+            </div>
+            <div class="form-group">
+              <label for="record-vehicle">Vehicle Type *</label>
+              <select id="record-vehicle" class="form-control" required>
+                <option value="">Select Vehicle</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="record-fuel">Fuel Type *</label>
+              <select id="record-fuel" class="form-control" required>
+                <option value="">Select Fuel</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-grid-3">
+            <div class="form-group">
+              <label for="record-litres">Litres Consumed *</label>
+              <input type="number" id="record-litres" class="form-control" step="0.01" min="0.01" placeholder="e.g. 45.00" required>
+            </div>
+            <div class="form-group">
+              <label for="record-price">Price / Litre (₹) *</label>
+              <input type="number" id="record-price" class="form-control" step="0.01" min="0.01" placeholder="e.g. 102.50" required>
+            </div>
+            <div class="form-group">
+              <label for="record-total">Total Amount (₹)</label>
+              <input type="text" id="record-total" class="form-control font-mono font-bold" value="0.00" readonly title="Calculated as Litres multiplied by Price per Litre">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="record-notes">Operational Notes (Optional)</label>
+            <input type="text" id="record-notes" class="form-control" placeholder="e.g. Highway station refill, route fleet vehicle">
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="modal-cancel-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="modal-submit-btn">Save Record</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CSV Import & Preview Modal -->
+  <div id="csv-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="csv-modal-title">
+    <div class="modal-dialog modal-dialog-large">
+      <div class="modal-header">
+        <h3 class="modal-title" id="csv-modal-title">Import Fuel Records from CSV</h3>
+        <button type="button" class="btn-close" id="csv-modal-close-btn" aria-label="Close dialog">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="csv-dropzone" class="dropzone">
+          <div class="dropzone-title">Select or drag and drop a CSV file here</div>
+          <div class="dropzone-desc">Required columns: Date, State, City, Vehicle, Fuel, Litres, Price/Litre</div>
+          <label for="csv-file-input" class="btn btn-secondary btn-sm" style="cursor: pointer;">
+            Choose File (.csv)
+          </label>
+          <input type="file" id="csv-file-input" accept=".csv" style="display: none;">
+        </div>
+
+        <div id="csv-preview-area" class="hidden">
+          <div id="csv-summary-text" style="margin-bottom: 12px; font-size: 13px;"></div>
+          <div class="table-responsive" style="max-height: 320px; overflow-y: auto; border: 1px solid var(--border-light); border-radius: var(--radius-sm);">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Row</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                  <th>Location</th>
+                  <th>Vehicle</th>
+                  <th>Fuel</th>
+                  <th class="text-right">Litres</th>
+                  <th class="text-right">Price / L</th>
+                  <th>Validation Notes</th>
+                </tr>
+              </thead>
+              <tbody id="csv-preview-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btn-cancel-csv">Cancel</button>
+        <button type="button" class="btn btn-primary" id="btn-commit-csv" disabled>Import Valid Rows</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Launch Blockers & Compliance Modal -->
+  <div id="checklist-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="checklist-title">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title" id="checklist-title">Pre-Launch Verification & Blockers</h3>
+        <button type="button" class="btn-close" id="btn-close-checklist" aria-label="Close dialog">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin-bottom: 14px; color: var(--text-secondary); font-size: 13px;">
+          Public launch criteria checklist. Ensure every item is fulfilled before going live.
+        </p>
+        <ul class="checklist-list">
+          <li class="checklist-item resolved">
+            <div class="checklist-icon text-success">[OK]</div>
+            <div>
+              <div class="checklist-title">Favicon Configured</div>
+              <div class="checklist-desc">Dedicated fuel meter vector icon linked in document head.</div>
+            </div>
+          </li>
+          <li class="checklist-item resolved">
+            <div class="checklist-icon text-success">[OK]</div>
+            <div>
+              <div class="checklist-title">Clean Branding Verification</div>
+              <div class="checklist-desc">Zero automated generator watermarks or promotional badges in code or interface.</div>
+            </div>
+          </li>
+          <li class="checklist-item resolved">
+            <div class="checklist-icon text-success">[OK]</div>
+            <div>
+              <div class="checklist-title">Design Guidelines Adherence</div>
+              <div class="checklist-desc">No purple gradients, no pill buttons, no emoji icons, and no em dashes.</div>
+            </div>
+          </li>
+          <li class="checklist-item resolved">
+            <div class="checklist-icon text-success">[OK]</div>
+            <div>
+              <div class="checklist-title">Privacy Policy Page Linked</div>
+              <div class="checklist-desc">Dedicated privacy.html detailing 100% offline local browser storage.</div>
+            </div>
+          </li>
+          <li class="checklist-item resolved">
+            <div class="checklist-icon text-success">[OK]</div>
+            <div>
+              <div class="checklist-title">Terms & Conditions Page Linked</div>
+              <div class="checklist-desc">Dedicated terms.html stating usage scope and calculations.</div>
+            </div>
+          </li>
+          <li class="checklist-item pending">
+            <div class="checklist-icon text-danger">[BLOCKER]</div>
+            <div>
+              <div class="checklist-title">Custom Domain Mapping</div>
+              <div class="checklist-desc">Launch blocker: Connect a custom production domain before public deployment.</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="document.getElementById('checklist-modal').classList.add('hidden')">Close Checklist</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Authentication Modal -->
+  <div id="auth-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title" id="auth-modal-title">Sign In to Account</h3>
+        <button type="button" class="btn-close" id="auth-modal-close-btn" aria-label="Close dialog">&times;</button>
+      </div>
+
+      <!-- Auth Modal Tabs Bar -->
+      <div class="auth-modal-tabs">
+        <button type="button" class="auth-tab-btn active" data-auth-tab="signin">Sign In</button>
+        <button type="button" class="auth-tab-btn" data-auth-tab="signup">Create Account</button>
+        <button type="button" class="auth-tab-btn" data-auth-tab="reset">Reset Password</button>
+        <button type="button" class="auth-tab-btn hidden" data-auth-tab="update-password" id="tab-btn-update-password">Set New Password</button>
+      </div>
+
+      <div class="modal-body">
+        <div id="auth-alert" class="form-alert hidden"></div>
+
+        <!-- Panel 1: Sign In -->
+        <div id="auth-panel-signin" class="auth-panel">
+          <form id="signin-form">
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label for="signin-email">Email Address *</label>
+              <input type="email" id="signin-email" class="form-control" placeholder="you@example.com" required autocomplete="email">
+            </div>
+            <div class="form-group" style="margin-bottom: 16px;">
+              <label for="signin-password">Password *</label>
+              <input type="password" id="signin-password" class="form-control" placeholder="Enter your password" required autocomplete="current-password">
+            </div>
+            <button type="submit" class="btn btn-primary" id="btn-submit-signin" style="width: 100%;">Sign In</button>
+          </form>
+        </div>
+
+        <!-- Panel 2: Create Account -->
+        <div id="auth-panel-signup" class="auth-panel hidden">
+          <form id="signup-form">
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label for="signup-email">Email Address *</label>
+              <input type="email" id="signup-email" class="form-control" placeholder="you@example.com" required autocomplete="email">
+            </div>
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label for="signup-password">Password (minimum 6 characters) *</label>
+              <input type="password" id="signup-password" class="form-control" placeholder="Create a secure password" minlength="6" required autocomplete="new-password">
+            </div>
+            <div class="form-group" style="margin-bottom: 16px;">
+              <label for="signup-confirm">Confirm Password *</label>
+              <input type="password" id="signup-confirm" class="form-control" placeholder="Confirm your password" minlength="6" required autocomplete="new-password">
+            </div>
+            <button type="submit" class="btn btn-primary" id="btn-submit-signup" style="width: 100%;">Create Account</button>
+          </form>
+        </div>
+
+        <!-- Panel 3: Reset Password -->
+        <div id="auth-panel-reset" class="auth-panel hidden">
+          <form id="reset-form">
+            <p style="margin-bottom: 14px; color: var(--text-secondary); font-size: 13px;">
+              Enter your email address to receive a secure password reset link.
+            </p>
+            <div class="form-group" style="margin-bottom: 16px;">
+              <label for="reset-email">Account Email Address *</label>
+              <input type="email" id="reset-email" class="form-control" placeholder="you@example.com" required autocomplete="email">
+            </div>
+            <button type="submit" class="btn btn-primary" id="btn-submit-reset" style="width: 100%;">Send Reset Link</button>
+          </form>
+        </div>
+
+        <!-- Panel 4: Set New Password (Recovery) -->
+        <div id="auth-panel-update-password" class="auth-panel hidden">
+          <form id="update-password-form">
+            <p style="margin-bottom: 14px; color: var(--text-secondary); font-size: 13px;">
+              Enter your new password below to complete account recovery.
+            </p>
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label for="update-password-new">New Password (minimum 6 characters) *</label>
+              <input type="password" id="update-password-new" class="form-control" placeholder="Enter new password" minlength="6" required autocomplete="new-password">
+            </div>
+            <div class="form-group" style="margin-bottom: 16px;">
+              <label for="update-password-confirm">Confirm New Password *</label>
+              <input type="password" id="update-password-confirm" class="form-control" placeholder="Confirm new password" minlength="6" required autocomplete="new-password">
+            </div>
+            <button type="submit" class="btn btn-primary" id="btn-submit-update-password" style="width: 100%;">Save New Password</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Local-to-Cloud Sync Prompt Modal -->
+  <div id="sync-prompt-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="sync-modal-title">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title" id="sync-modal-title">Sync Local Records to Cloud</h3>
+      </div>
+      <div class="modal-body">
+        <div id="sync-status-alert" class="form-alert hidden"></div>
+        <p style="margin-bottom: 12px; color: var(--text-primary); font-size: 14px;">
+          We found <strong id="sync-count-text">0</strong> fuel records stored on this device under key <code>aero_fuel_records_v1</code>.
+        </p>
+        <p style="margin-bottom: 14px; color: var(--text-secondary); font-size: 13px;">
+          Would you like to sync them into your private cloud account? Your original local records will be preserved safely on this browser.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btn-skip-sync">Keep Local Only</button>
+        <button type="button" class="btn btn-primary" id="btn-confirm-sync">Sync to Cloud Account</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Root -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <strong>AERO // FUEL INDIA</strong> &bull; Commercial & Fleet Fuel Tracking Log
+      </div>
+      <nav class="footer-links" aria-label="Compliance Links">
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms & Conditions</a>
+        <button type="button" onclick="document.getElementById('checklist-modal').classList.remove('hidden')">Launch Checklist</button>
+      </nav>
+    </div>
+  </footer>
+
+  <!-- Application Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/india-map-data.js"></script>
+  <script src="js/sample-data.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/csv.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/records.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

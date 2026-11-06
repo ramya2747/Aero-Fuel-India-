@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy - AERO // FUEL INDIA</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .legal-container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 32px;
+      background-color: #FFFFFF;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-card);
+    }
+    .legal-title {
+      font-size: 24px;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+    .legal-updated {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border-light);
+      padding-bottom: 12px;
+    }
+    .legal-section {
+      margin-bottom: 24px;
+    }
+    .legal-section h2 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+    .legal-section p, .legal-section ul {
+      color: var(--text-secondary);
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+    .legal-section ul {
+      padding-left: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="brand-wrapper">
+        <a href="index.html" style="text-decoration: none; display: flex; align-items: center; gap: 12px; color: inherit;">
+          <div class="brand-icon">
+            <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="32" height="32" rx="4" fill="#1E293B"/>
+              <path d="M7 26V8C7 6.89543 7.89543 6 9 6H19C20.1046 6 21 6.89543 21 8V26" stroke="#38BDF8" stroke-width="2"/>
+              <rect x="10" y="9" width="7" height="6" rx="1" fill="#0F172A" stroke="#0284C7" stroke-width="1"/>
+              <line x1="6" y1="26" x2="22" y2="26" stroke="#38BDF8" stroke-width="2"/>
+              <path d="M21 12H23C24.1046 12 25 12.8954 25 14V21C25 21.5523 24.5523 22 24 22H23" stroke="#F59E0B" stroke-width="2"/>
+            </svg>
+          </div>
+          <div>
+            <div class="brand-title">AERO // FUEL INDIA</div>
+            <div class="brand-tagline">National Fuel Operations & Analytics</div>
+          </div>
+        </a>
+      </div>
+
+      <div class="header-actions">
+        <a href="index.html" class="btn btn-secondary btn-sm">Return to Application</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="legal-container">
+    <h1 class="legal-title">Privacy Policy</h1>
+    <div class="legal-updated">Last Updated: November 5, 2026</div>
+
+    <div class="legal-section">
+      <h2>1. Overview and Storage Architecture</h2>
+      <p>
+        AERO // FUEL INDIA provides two storage modes depending on whether you choose to use an account:
+      </p>
+      <ul>
+        <li><strong>Guest Mode (Unauthenticated):</strong> If you do not sign in, all fuel log records, vehicle categories, locations, and rates remain strictly in your browser local storage on your device.</li>
+        <li><strong>Cloud Account Mode (Authenticated):</strong> If you sign up and sign in, your fuel records are transmitted over encrypted network connections (HTTPS) to Supabase cloud servers and stored in a private Postgres database.</li>
+      </ul>
+    </div>
+
+    <div class="legal-section">
+      <h2>2. Cloud Storage and Row Level Security</h2>
+      <p>
+        When you use an account, your data is managed through Supabase:
+      </p>
+      <ul>
+        <li>Records are stored in a dedicated Postgres database table (<code>public.fuel_records</code>).</li>
+        <li>Access is enforced through database-level Row Level Security (RLS). Every query checks that the record owner matches your authenticated account identifier. No other user can read or modify your records.</li>
+        <li>Unauthenticated visitors are explicitly blocked by database grants from querying user records.</li>
+      </ul>
+    </div>
+
+    <div class="legal-section">
+      <h2>3. Local Storage and Data Synchronization</h2>
+      <p>
+        If you start in guest mode and later create an account:
+      </p>
+      <ul>
+        <li>The application checks your browser storage key (<code>aero_fuel_records_v1</code>) and asks for your confirmation before syncing any records to the cloud.</li>
+        <li>Original local records remain preserved on your computer and are marked as synced. They are never automatically erased.</li>
+        <li>Sync operations use unique keys to ensure that retrying an upload never creates duplicate entries.</li>
+      </ul>
+    </div>
+
+    <div class="legal-section">
+      <h2>4. Backups and File Exports</h2>
+      <p>
+        Whether signed in or in guest mode, you retain full ownership of your records. You can export complete CSV spreadsheets or JSON backups at any time directly through the application. File parsing for CSV imports and JSON restorations occurs locally in your browser.
+      </p>
+    </div>
+
+    <div class="legal-section">
+      <h2>5. External Tracking and Cookies</h2>
+      <p>
+        This application does not load third-party marketing cookies, Google Analytics, social media widgets, or advertising trackers. Network communication is limited strictly to authenticating and syncing your fuel log entries with Supabase.
+      </p>
+    </div>
+
+    <div class="legal-section">
+      <h2>6. Policy Updates</h2>
+      <p>
+        Any adjustments to this policy will be documented directly in this document and accessible through the footer of the application.
+      </p>
+    </div>
+
+    <div class="legal-section">
+      <h2>7. Business and Contact Information</h2>
+      <p>
+        For inquiries regarding this application or to customize operational parameters for your commercial fleet:
+      </p>
+      <ul>
+        <li><strong>Organization:</strong> [Your Business / Fleet Operator Name]</li>
+        <li><strong>Contact Email:</strong> [contact@example.com]</li>
+        <li><strong>Operating Jurisdiction:</strong> [City, State, India]</li>
+        <li><strong>Application Website:</strong> [https://your-custom-domain.com]</li>
+      </ul>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <strong>AERO // FUEL INDIA</strong> &bull; Commercial & Fleet Fuel Tracking Log
+      </div>
+      <nav class="footer-links">
+        <a href="index.html">Log Book</a>
+        <a href="terms.html">Terms & Conditions</a>
+      </nav>
+    </div>
+  </footer>
+
+</body>
+</html>
+
